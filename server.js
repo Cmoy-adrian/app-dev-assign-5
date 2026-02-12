@@ -80,11 +80,58 @@ const requestLogger = (req, res, next) => {
   next();
 };
 
+const todoValidation = [
+    body('name')
+    .isLength({ min: 3 })
+    .withMessage('Task must be at least 3 characters long'),
+  
+    body('description')
+    .isLength({ min: 10 })
+    .withMessage('Description must be at least 10 characters long'),
+  
+    body('price')
+    .isInt({ min: 1 })
+    .withMessage('Price must be larger then 0'),
+  
+    body('category')
+    .isIn(['appetizer', 'entree', 'dessert', 'beverage'])
+    .withMessage('Category must be appetizer, entree, dessert, or beverage'),
+  
+    body('ingredients')
+    .isArray({ min: 1 })
+    .withMessage('Ingredients must be an array with at least one ingredient.'),
+  
+    body('available')
+    .optional()
+    .isBoolean()
+    .withMessage('Available must be true or false')
+];
+
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()) {
+    const errorMessages =
+    errors.array().map(error => error.msg);
+
+    return res.status(400).json({
+      error: 'Validation failed',
+      messages: errorMessages
+    });
+  }
+
+  // Set default val for available if not provided
+  if (req.body.available === undefined) {
+    req.body.available = true;
+  }
+
+  next();
+}
+
 
 // Use middleware
 app.use(express.json());
 app.use(requestLogger);
-
 
 
 // Routes
@@ -104,7 +151,7 @@ app.get('/api/menu/:id', (req, res) => {
 
 });
 
-app.post('/api/menu', (req, res) => {
+app.post('/api/menu', todoValidation, handleValidationErrors, (req, res) => {
   const { name, description, price, category, ingredients, available} = req.body;
 
   const newItem = {
@@ -121,7 +168,7 @@ app.post('/api/menu', (req, res) => {
   res.status(201).json(newItem);
 });
 
-app.put('/api/menu/:id', (req, res) => {
+app.put('/api/menu/:id', todoValidation, handleValidationErrors, (req, res) => {
   const menuId = parseInt(req.params.id);
   const { name, description, price, category, ingredients, available } = req.body;
 
