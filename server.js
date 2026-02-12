@@ -84,7 +84,7 @@ app.get('/api/menu/:id', (req, res) => {
   const menu = menuItems.find(m => m.id === menuId);
 
   if (menu) {
-    res.json(menuItems);
+    res.json(menu);
   } else {
     res.status(404).json({ error: "Menu items not found"});
   }
