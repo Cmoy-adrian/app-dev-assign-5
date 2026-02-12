@@ -90,8 +90,9 @@ const todoValidation = [
     .withMessage('Description must be at least 10 characters long'),
   
     body('price')
-    .isInt({ min: 1 })
-    .withMessage('Price must be larger then 0'),
+    .isFloat({ gt: 0})
+    .withMessage('Price must be larger then 0')
+    .toFloat(),
   
     body('category')
     .isIn(['appetizer', 'entree', 'dessert', 'beverage'])
@@ -193,7 +194,7 @@ app.put('/api/menu/:id', todoValidation, handleValidationErrors, (req, res) => {
 
 app.delete('/api/menu/:id', (req, res) => {
   const menuId = parseInt(req.params.id);
-  const menuIndex = menuItems.find(m => m.id === menuId);
+  const menuIndex = menuItems.findIndex(m => m.id === menuId);
 
   if (menuIndex === -1) {
     return res.status(404).json({ error: 'Menu item not found'});
