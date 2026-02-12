@@ -1,5 +1,9 @@
 // Import packages, initialize an express app, and define the port you will use
+const { body, validationResult } = require('express-validator');
 
+const express = require('express');
+const app = express();
+const port = 3000;
 
 
 // Data for the server
@@ -60,4 +64,86 @@ const menuItems = [
   }
 ];
 
+
 // Define routes and implement middleware here
+// Middleware functions
+
+
+
+// Use middleware
+app.use(express.json());
+
+
+// Routes
+app.get('/api/menu', (req, res) => {
+  res.json(menuItems);
+});
+
+app.get('/api/menu/:id', (req, res) => {
+  const menuId = parseInt(req.params.id);
+  const menu = menuItems.find(m => m.id === menuId);
+
+  if (menu) {
+    res.json(menuItems);
+  } else {
+    res.status(404).json({ error: "Menu items not found"});
+  }
+
+});
+
+app.post('/api/menu', (req, res) => {
+  const { name, description, price, category, ingredients} = req.body;
+
+  const newItem = {
+    id: menuItems.length + 1,
+    name,
+    description,
+    price,
+    category,
+    ingredients,
+    available: true
+  };
+
+  menuItems.push(newItem);
+  res.status(201).json(newItem);
+});
+
+app.put('api/menu/:id', (req, res) => {
+  const menuId = parseInt(req.params.id);
+  const { name, description, price, category, ingredients} = req.body;
+
+  const menuIndex = menuItems.findIndex(m => m.id === menuId);
+
+  if (menuIndex === -1) {
+    return res.status(404).json({ error: 'Menu item not found'});
+  }
+
+  menuItems[menuIndex] = {
+    id: menuId,
+    name,
+    description,
+    price,
+    category,
+    ingredients,
+    available
+  };
+
+  res.json(menuItems[menuIndex]);
+});
+
+app.delete('api/menu/:id', (req, res) => {
+  const menuId = parseInt(req.params.id);
+  const menuIndex = menuItems.find(m => m.id === menuId);
+
+  if (menuIndex === -1) {
+    return res.status(404).json({ error: 'Menu item not found'});
+  }
+
+  const deletedItem = menuItems.splice(menuIndex, 1)[0];
+  res.json({ message: 'Menu item deleted', menuItems: deletedItem});
+});
+
+// Listen for port going live
+app.listen(port, () => {
+    console.log(`Restaurant API running at http://localhost:${port}`);
+});
