@@ -67,11 +67,24 @@ const menuItems = [
 
 // Define routes and implement middleware here
 // Middleware functions
+const requestLogger = (req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
 
+  // Log request body for POST and PUT requests
+  if (req.method === 'POST' || req.method === 'PUT') {
+    console.log('Request Body:',
+    JSON.stringify(req.body, null, 2));
+  }
+
+  next();
+};
 
 
 // Use middleware
 app.use(express.json());
+app.use(requestLogger);
+
 
 
 // Routes
@@ -142,6 +155,7 @@ app.delete('/api/menu/:id', (req, res) => {
   const deletedItem = menuItems.splice(menuIndex, 1)[0];
   res.json({ message: 'Menu item deleted', menuItems: deletedItem});
 });
+
 
 // Listen for port going live
 app.listen(port, () => {
