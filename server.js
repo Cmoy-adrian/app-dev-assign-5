@@ -92,7 +92,7 @@ app.get('/api/menu/:id', (req, res) => {
 });
 
 app.post('/api/menu', (req, res) => {
-  const { name, description, price, category, ingredients} = req.body;
+  const { name, description, price, category, ingredients, available} = req.body;
 
   const newItem = {
     id: menuItems.length + 1,
@@ -101,16 +101,16 @@ app.post('/api/menu', (req, res) => {
     price,
     category,
     ingredients,
-    available: true
+    available
   };
 
   menuItems.push(newItem);
   res.status(201).json(newItem);
 });
 
-app.put('api/menu/:id', (req, res) => {
+app.put('/api/menu/:id', (req, res) => {
   const menuId = parseInt(req.params.id);
-  const { name, description, price, category, ingredients} = req.body;
+  const { name, description, price, category, ingredients, available } = req.body;
 
   const menuIndex = menuItems.findIndex(m => m.id === menuId);
 
@@ -131,7 +131,7 @@ app.put('api/menu/:id', (req, res) => {
   res.json(menuItems[menuIndex]);
 });
 
-app.delete('api/menu/:id', (req, res) => {
+app.delete('/api/menu/:id', (req, res) => {
   const menuId = parseInt(req.params.id);
   const menuIndex = menuItems.find(m => m.id === menuId);
 
